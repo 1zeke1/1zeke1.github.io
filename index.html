@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>f̵̶̢̧̡̪̹̭͉̗̗͇̠̠̣͔̩̰͚ͤ̏̈́͒ͭ͐ͤͣ̏̉̒̈́͑̾̑̓͊̐͘͟͡ͅa̴̸̴̧̠̝̭̤̣̺͔̣̩͕̹̮̟ͦͤͨ̾͌ͣ̽͐̆ͯͭͣͣ̕͟ć̶̴̶̲͎͍̖͎̈̄ͥ͆ͨ̀̈́́̇͞e̢͈͓͕͖͎͍̘̗ͮ̽͌ͩ̂̀̈́̽̀̍̊̏̿͟i̴̷̪̻̺̍ͣ̀͐_̢̥̮̮͔̟̯͈̹̉ͬ̈́ͪ͆̆͒̀̃̕ţ̸̨̞̺̞̠̣͕̩͕͂̈́̾͋̅ͯ̈̄̿ͮ͗ͯ͜͡͠͞.̴̭̬͗̈̿̑̚c̢̬̼̞̯ͩ̒̍͌ͣ͗͟͝͝o̧͓̱̦̝̻͎̜̞ͭ̽̾̈͒̈́ͩͦͬ͊͒͋̏͜͟͡_̴̛̙̰̰̦͍̱̽ͩ͌ͭ͠m̷̨̟̼̃̽̋̏ͤ͟͢</title>
+    <title>f̴̧͕͖͓̣̬͇̬͗ͪ̓a̢̧̟̎͘c͞_̷̧̘̳͙̥̜̊͋ͦ̀́̆ͭ̒̚̕͜_̸̧̜͉̬̹̣̪̽̐ͤ̔ͦ̈ͮ̇ͧ̎ͣ͘͟͢ͅę̛̘̞̠̭̙͎̼̰͈̼̦ͯ͑͛̑ͣ̒ͩ̉ͣ͗̆͛̃͠i̴̢̡̛̯̥͉̦̮͖̙̱͖̜͙̹͓̳̟ͥ̌̎́̓ͯ̽ͦͤ̊̋̍ͩ͂͗́ͣ̒͘͢͝͞͞t̵̢̡̨͇̳̤͙̠̲͎͌̇̍̿̐̆̓̉̉͆ͨ́͜͝͡.̢̨̗͓͕̰̱̬̖͖͍̹̫͚́̍̔͂̂̒̈̈̑̀́̎͊͘c͎̺̞͍̺͓͎̯̪̰̱̗ͫ̓̽ͤ̊ͣͮͯͬ̆̈́͟͝͡ͅơ̘͈̼͍̥̫͇̝̦͕̟ͭ̉̓͂ͧ̍ͭͤͨ̽̏͢͡͡͠͡m̸͚̹̰͛̓̽͞͞</title>
     
     <style>
         * {
@@ -43,21 +43,25 @@
         function tryUnmute() {
             video.muted = false;
             video.volume = 1.0;
+            if (video.paused) {
+                video.play();
+            }
         }
         
-        // Funcție pentru a porni video-ul
+        // Funcție pentru a porni video-ul cu încercări de unmute
         function startVideo() {
             video.muted = true;
             video.volume = 1.0;
             
             video.play().then(() => {
-                // Multiple încercări rapide
+                // Multiple încercări rapide de unmute
                 setTimeout(tryUnmute, 1);
                 setTimeout(tryUnmute, 10);
                 setTimeout(tryUnmute, 50);
                 setTimeout(tryUnmute, 100);
                 setTimeout(tryUnmute, 200);
                 setTimeout(tryUnmute, 500);
+                setTimeout(tryUnmute, 1000);
             }).catch(err => {
                 console.log('Autoplay error:', err);
             });
@@ -66,32 +70,41 @@
         // Pornește imediat
         startVideo();
         
-        // Încearcă când pagina e complet încărcată
+        // Încarcă și când pagina e complet gata
         window.addEventListener('load', startVideo);
         
-        // FORȚEAZĂ unmute la ORICE interacțiune
-        function forceUnmute() {
-            video.muted = false;
-            video.volume = 1.0;
-            if (video.paused) {
-                video.play();
-            }
-        }
-        
-        // Ascultă TOATE tipurile de interacțiuni
-        ['click', 'touchstart', 'touchend', 'mousedown', 'keydown', 'scroll', 'mousemove'].forEach(event => {
-            document.addEventListener(event, forceUnmute, { once: true, passive: true });
-        });
-        
-        // Verifică periodic și încearcă unmute
+        // Verificare periodică - încearcă unmute la fiecare 100ms
         const interval = setInterval(() => {
             if (!video.paused && video.muted) {
                 tryUnmute();
             }
         }, 100);
         
-        // Oprește verificarea după 5 secunde
-        setTimeout(() => clearInterval(interval), 5000);
+        // Oprește verificarea după 10 secunde
+        setTimeout(() => clearInterval(interval), 10000);
+        
+        // TOATE interacțiunile posibile - forțează unmute
+        const interactions = [
+            'click', 'touchstart', 'touchend', 'touchmove',
+            'keydown', 'keyup', 'keypress',
+            'wheel', 'scroll',
+            'mousemove', 'mousedown', 'mouseup',
+            'pointerdown', 'pointerup'
+        ];
+        
+        interactions.forEach(event => {
+            document.addEventListener(event, tryUnmute, { once: true, passive: true });
+        });
+        
+        // Forțare extra: încearcă unmute și la focus pe window
+        window.addEventListener('focus', tryUnmute, { once: true });
+        
+        // Forțare la vizibilitate
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                tryUnmute();
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
