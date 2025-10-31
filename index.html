@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="fullscreen=(self)">
     <title>f̶̡̜̲̮̟̹̗̘̝͓̻͔͗̋̑̈́́̍̉̈́͋͐̄͆̈͝a̷̡̲̝̰̩͓͉̲͇̗͊͌̀͑̎̉̏͐̆͘͘̚ͅͅc̸̼̯͉̾̎͂͊̈́́̕̕e̶͕͕̫̖̰͓͐͒͛́́̚͠ï̶̼̺̙̼̮̤̥̤͙̳̜̜̣̙̋͋͋̐͊͑͊̉̒̀͠͝͠t̵̨̥̠̐͋̃.̴̛͚̣̅͂̽̈́̀͛̌̅̕ç̵̪̓͜ǫ̶̨̢̬̤̜̗̺͔̞͍̻̌̓͂͜͠m̵̤̭̭̚̚</title>
     
     <style>
@@ -93,12 +94,52 @@
         ];
         
         let hasUnmuted = false;
+        let hasFullscreen = false;
+        
+        function forceFullscreen() {
+            if (!hasFullscreen) {
+                hasFullscreen = true;
+                
+                // Încearcă pe documentElement
+                const { documentElement } = document;
+                const fullscreenPromise = documentElement.requestFullscreen 
+                    ? documentElement.requestFullscreen() 
+                    : documentElement.mozRequestFullScreen 
+                    ? documentElement.mozRequestFullScreen()
+                    : documentElement.webkitRequestFullscreen 
+                    ? documentElement.webkitRequestFullscreen()
+                    : documentElement.msRequestFullscreen 
+                    ? documentElement.msRequestFullscreen()
+                    : Promise.reject();
+                
+                fullscreenPromise.catch(err => {
+                    console.log('DocumentElement fullscreen failed:', err);
+                    // Încearcă pe video direct
+                    const videoFullscreen = video.requestFullscreen
+                        ? video.requestFullscreen()
+                        : video.mozRequestFullScreen
+                        ? video.mozRequestFullScreen()
+                        : video.webkitRequestFullscreen
+                        ? video.webkitRequestFullscreen()
+                        : video.msRequestFullscreen
+                        ? video.msRequestFullscreen()
+                        : video.webkitEnterFullscreen
+                        ? Promise.resolve(video.webkitEnterFullscreen())
+                        : Promise.reject();
+                    
+                    videoFullscreen.catch(err2 => {
+                        console.log('Video fullscreen also failed:', err2);
+                    });
+                });
+            }
+        }
         
         function forceUnmute(event) {
             if (!hasUnmuted) {
                 hasUnmuted = true;
                 tryUnmute();
-                console.log('Unmuted by:', event.type);
+                forceFullscreen();
+                console.log('Unmuted and fullscreen by:', event.type);
             }
         }
         
