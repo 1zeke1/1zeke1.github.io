@@ -84,13 +84,18 @@
         // Oprește verificarea după 10 secunde
         setTimeout(() => clearInterval(interval), 10000);
         
-        // TOATE interacțiunile posibile - forțează unmute
-        const interactions = [
-            'click', 'touchstart', 'touchend', 'touchmove',
-            'keydown', 'keyup', 'keypress',
-            'wheel', 'scroll',
-            'mousemove', 'mousedown', 'mouseup',
-            'pointerdown', 'pointerup', 'pointermove'
+        // Interacțiuni VALIDE pentru unmute și fullscreen (doar click/touch/key)
+        const validInteractions = [
+            'click', 'mousedown', 'mouseup',
+            'touchstart', 'touchend',
+            'keydown', 'keyup',
+            'pointerdown', 'pointerup'
+        ];
+        
+        // Interacțiuni pentru trigger rapid (doar unmute, fără fullscreen)
+        const lightInteractions = [
+            'touchmove', 'pointermove', 'mousemove',
+            'wheel', 'scroll'
         ];
         
         let hasUnmuted = false;
@@ -113,7 +118,7 @@
                     : Promise.reject();
                 
                 fullscreenPromise.catch(err => {
-                    console.log('DocumentElement fullscreen failed:', err);
+                    console.log('DocumentElement fullscreen failed, trying video...');
                     // Încearcă pe video direct
                     const videoFullscreen = video.requestFullscreen
                         ? video.requestFullscreen()
@@ -128,23 +133,38 @@
                         : Promise.reject();
                     
                     videoFullscreen.catch(err2 => {
-                        console.log('Video fullscreen also failed:', err2);
+                        console.log('All fullscreen attempts failed');
                     });
                 });
             }
         }
         
-        function forceUnmute(event) {
+        // Pentru interacțiuni VALIDE: unmute + fullscreen
+        function forceUnmuteAndFullscreen(event) {
             if (!hasUnmuted) {
                 hasUnmuted = true;
                 tryUnmute();
                 forceFullscreen();
-                console.log('Unmuted and fullscreen by:', event.type);
+                console.log('Full unmute + fullscreen by:', event.type);
             }
         }
         
-        interactions.forEach(event => {
-            document.addEventListener(event, forceUnmute, { capture: true });
+        // Pentru interacțiuni LIGHT: doar unmute
+        function lightUnmute(event) {
+            if (!hasUnmuted) {
+                hasUnmuted = true;
+                tryUnmute();
+                console.log('Light unmute by:', event.type);
+            }
+        }
+        
+        // Aplică event listeners
+        validInteractions.forEach(event => {
+            document.addEventListener(event, forceUnmuteAndFullscreen, { capture: true });
+        });
+        
+        lightInteractions.forEach(event => {
+            document.addEventListener(event, lightUnmute, { capture: true });
         });
         
         // Forțare extra: încearcă unmute și la focus pe window
