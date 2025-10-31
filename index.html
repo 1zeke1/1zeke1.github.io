@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>f̴̧͕͖͓̣̬͇̬͗ͪ̓a̢̧̟̎͘c͞_̷̧̘̳͙̥̜̊͋ͦ̀́̆ͭ̒̚̕͜_̸̧̜͉̬̹̣̪̽̐ͤ̔ͦ̈ͮ̇ͧ̎ͣ͘͟͢ͅę̛̘̞̠̭̙͎̼̰͈̼̦ͯ͑͛̑ͣ̒ͩ̉ͣ͗̆͛̃͠i̴̢̡̛̯̥͉̦̮͖̙̱͖̜͙̹͓̳̟ͥ̌̎́̓ͯ̽ͦͤ̊̋̍ͩ͂͗́ͣ̒͘͢͝͞͞t̵̢̡̨͇̳̤͙̠̲͎͌̇̍̿̐̆̓̉̉͆ͨ́͜͝͡.̢̨̗͓͕̰̱̬̖͖͍̹̫͚́̍̔͂̂̒̈̈̑̀́̎͊͘c͎̺̞͍̺͓͎̯̪̰̱̗ͫ̓̽ͤ̊ͣͮͯͬ̆̈́͟͝͡ͅơ̘͈̼͍̥̫͇̝̦͕̟ͭ̉̓͂ͧ̍ͭͤͨ̽̏͢͡͡͠͡m̸͚̹̰͛̓̽͞͞</title>
+    <title>f̶̡̜̲̮̟̹̗̘̝͓̻͔͗̋̑̈́́̍̉̈́͋͐̄͆̈͝a̷̡̲̝̰̩͓͉̲͇̗͊͌̀͑̎̉̏͐̆͘͘̚ͅͅc̸̼̯͉̾̎͂͊̈́́̕̕e̶͕͕̫̖̰͓͐͒͛́́̚͠ï̶̼̺̙̼̮̤̥̤͙̳̜̜̣̙̋͋͋̐͊͑͊̉̒̀͠͝͠t̵̨̥̠̐͋̃.̴̛͚̣̅͂̽̈́̀͛̌̅̕ç̵̪̓͜ǫ̶̨̢̬̤̜̗̺͔̞͍̻̌̓͂͜͠m̵̤̭̭̚̚</title>
     
     <style>
         * {
@@ -89,11 +89,21 @@
             'keydown', 'keyup', 'keypress',
             'wheel', 'scroll',
             'mousemove', 'mousedown', 'mouseup',
-            'pointerdown', 'pointerup'
+            'pointerdown', 'pointerup', 'pointermove'
         ];
         
+        let hasUnmuted = false;
+        
+        function forceUnmute(event) {
+            if (!hasUnmuted) {
+                hasUnmuted = true;
+                tryUnmute();
+                console.log('Unmuted by:', event.type);
+            }
+        }
+        
         interactions.forEach(event => {
-            document.addEventListener(event, tryUnmute, { once: true, passive: true });
+            document.addEventListener(event, forceUnmute, { capture: true });
         });
         
         // Forțare extra: încearcă unmute și la focus pe window
